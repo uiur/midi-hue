@@ -1,0 +1,15 @@
+{
+  "name": "midi-hue",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron-spawn main.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.13.1",
+    "lodash.throttle": "^4.1.1"
+  }
+}
