@@ -3,7 +3,7 @@
 const request = require('axios')
 const throttle = require('lodash.throttle')
 
-const groupUrl = 'http://10.0.1.2/api/UDFYuTwbCfOgWUifr60MaAEBTDMmGAjxEzWkaRyA/groups/1'
+const groupUrl = 'http://10.0.1.2/api/UDFYuTwbCfOgWUifr60MaAEBTDMmGAjxEzWkaRyA/groups/0'
 
 function requestMIDI () {
   return navigator.requestMIDIAccess()
@@ -17,8 +17,16 @@ function requestMIDI () {
     })
 }
 
+const colors = [
+  [0.3698, 0.3725], // concentrate
+  [0.4448, 0.4066], // read
+]
+
+
 Promise.all([requestMIDI(), request.get(groupUrl)]).then(([midi, res]) => {
   console.log(res.data)
+
+  let colorIndex = 0
   let state = {
     bri: res.data.action.bri
   }
@@ -43,8 +51,17 @@ Promise.all([requestMIDI(), request.get(groupUrl)]).then(([midi, res]) => {
 
       updateBrightness(state.bri + delta)
       sync()
-    } else if (e.data[0] === 0xb0 && e.data[1] === 0x45){
+    } else if (e.data[0] === 0xb0 && e.data[1] === 0x45) {
       updateBrightness(e.data[2] * 2)
+      sync()
+    } else if (e.data[0] === 0xb0 && e.data[1] === 0x15) {
+      colorIndex += e.data[2] === 0x01 ? 1 : -1
+      colorIndex %= colors.length
+      if (colorIndex < 0) {
+        colorIndex = colors.length - colorIndex
+      }
+
+      state.xy = colors[colorIndex]
       sync()
     }
   }
